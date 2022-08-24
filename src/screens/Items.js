@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   ScrollView,
   View,
@@ -6,14 +6,35 @@ import {
   TextInput,
   StyleSheet,
   Dimensions,
+  FlatList,
+  RefreshControl,
+  Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import COLORS from '../constants/colors';
+import {filterIt} from '../Filters';
+import {FetchLocal, localStore} from '../LocalData/AsyncManager';
 
-export default function Items() {
+export default function Items({navigation}) {
   const {width, height} = Dimensions.get('screen');
+  const [AllProducts, setAllProducts] = useState([]);
+  const [filterProducts, setfilterProducts] = useState([]);
+  const [refreshing, setRefreshing] = React.useState(false);
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  const Card = () => {
+  const fetchData = async () => {
+    setRefreshing(true);
+    const data = await FetchLocal.products();
+    console.log('\n\n\n Fetched Products', data);
+    setAllProducts(data.reverse());
+    setfilterProducts(data);
+    setRefreshing(false);
+  };
+
+  const Card = ({item}) => {
+    console.log('Passed Item\n\n ', item, '\n\n');
     return (
       <View
         style={{
@@ -24,14 +45,24 @@ export default function Items() {
         }}>
         <View style={style.card}>
           <View>
-            <Text style={style.textStyle}>#1457</Text>
-            <Text style={style.textStyle}>Rs 6890</Text>
+            <Text style={style.textStyle}>
+              {item?.id} {item?.name}
+            </Text>
+            <Text style={style.textStyle}>
+              Stock:{item?.quantity} {'    '} Price: {item?.price}
+            </Text>
           </View>
           <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-            <Icon name="edit" size={26} style={{paddingHorizontal: 4}} />
+            <Icon
+              name="edit"
+              size={26}
+              style={{paddingHorizontal: 4}}
+              onPress={() => navigation.navigate('Edit product', {data: item})}
+            />
             <Icon
               name="delete"
               color={'#e27127'}
+              onPress={() => delteProduct(item?.id)}
               size={26}
               style={{paddingHorizontal: 4}}
             />
@@ -41,21 +72,53 @@ export default function Items() {
     );
   };
 
+  const filterItems = text => {
+    if (text.trim() == '') return setfilterProducts(AllProducts);
+    filterIt(text, AllProducts, 'name', res => {
+      setfilterProducts(res);
+    });
+  };
+
+  const delteProduct = id => {
+    localStore.deleteProductByID(id, res => {
+      if (res.success) {
+        Alert.alert('Product Delete');
+        fetchData();
+      }
+    });
+  };
   return (
     <>
-      <ScrollView style={{padding: 10}}>
+      <ScrollView
+        style={{padding: 10}}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={fetchData} />
+        }
+        // contentContainerStyle={styles.list}
+      >
         <View style={style.inputContainer}>
           <Icon name="search" size={28} />
           <TextInput
             style={{flex: 1, fontSize: 18}}
-            placeholder="Search for Bills"
+            placeholder="Search for Products"
+            onChangeText={text => filterItems(text)}
           />
         </View>
+
+        {/* <FlatList
+          data={filterProducts}
+          renderItem={({item}) => <Card item={item} />}
+          keyExtractor={item => item?.id}
+        /> */}
+
+        {filterProducts.map((item, key) => {
+          return <Card key={key} item={item} />;
+        })}
+        {/* <Card /> */}
+        {/* <Card />
         <Card />
         <Card />
-        <Card />
-        <Card />
-        <Card />
+        <Card /> */}
       </ScrollView>
       <View
         style={{
@@ -69,7 +132,12 @@ export default function Items() {
           padding: 10,
           borderRadius: 30,
         }}>
-        <Icon name="add" color={'#e27127'} size={28} />
+        <Icon
+          name="add"
+          color={'#e27127'}
+          size={28}
+          onPress={() => navigation.navigate('UploadItemScreen')}
+        />
       </View>
     </>
   );

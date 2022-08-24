@@ -13,13 +13,11 @@ import {createIconSetFromFontello} from 'react-native-vector-icons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {localStore} from '../LocalData/AsyncManager';
 
-export default function UploadItems() {
+export default function EditProducts({route}) {
+  const {data} = route.params;
   const {width, height} = Dimensions.get('screen');
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    quantity: 0,
-    price: '',
+    ...data,
   });
   const handleChange = (name, value) => {
     console.log('\nname\n', name, '\nvalue\t', value);
@@ -51,9 +49,9 @@ export default function UploadItems() {
   const submitForm = async () => {
     try {
       console.log('\n\nPRODUCT TO UPLOAD \n\n', formData);
-      localStore.uploadProducts(formData, res => {
+      localStore.editProduct(formData, res => {
         if (res.success) {
-          Alert.alert('Product Uploaded Successfully');
+          Alert.alert('Product Updated Successfully');
         }
       });
     } catch (e) {
@@ -67,10 +65,11 @@ export default function UploadItems() {
         return (
           <React.Fragment key={key}>
             <Text key={key} style={style.textStyle}>
-              {item.name}
+              {item.label}
             </Text>
             <View style={style.inputContainer}>
               <TextInput
+                value={formData[item.name]}
                 style={{flex: 1, fontSize: 18}}
                 onChangeText={text => item.onTextChange(item.name, text)}
               />
@@ -101,7 +100,7 @@ export default function UploadItems() {
           paddingVertical: 10,
           borderRadius: 7,
         }}>
-        <Text style={style.textStyle2}>Upload Item</Text>
+        <Text style={style.textStyle2}>Edit Item</Text>
       </TouchableOpacity>
     </ScrollView>
   );
