@@ -14,15 +14,17 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import COLORS from '../constants/colors';
 import {filterIt} from '../Filters';
 import {FetchLocal, localStore} from '../LocalData/AsyncManager';
+import {useIsFocused} from '@react-navigation/native';
 
 export default function Items({navigation}) {
+  const isFocused = useIsFocused();
   const {width, height} = Dimensions.get('screen');
   const [AllProducts, setAllProducts] = useState([]);
   const [filterProducts, setfilterProducts] = useState([]);
   const [refreshing, setRefreshing] = React.useState(false);
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [isFocused]);
 
   const fetchData = async () => {
     setRefreshing(true);
@@ -61,7 +63,7 @@ export default function Items({navigation}) {
             />
             <Icon
               name="delete"
-              color={'#e27127'}
+              color={`${COLORS.themeColor}`}
               onPress={() => delteProduct(item?.id)}
               size={26}
               style={{paddingHorizontal: 4}}
@@ -91,9 +93,9 @@ export default function Items({navigation}) {
     <>
       <ScrollView
         style={{padding: 10}}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={fetchData} />
-        }
+        // refreshControl={
+        //   <RefreshControl refreshing={refreshing} onRefresh={fetchData} />
+        // }
         // contentContainerStyle={styles.list}
       >
         <View style={style.inputContainer}>
@@ -123,7 +125,7 @@ export default function Items({navigation}) {
       <View
         style={{
           backgroundColor: '#fff',
-          borderColor: '#e27127',
+          borderColor: COLORS.themeColor,
           borderWidth: 1,
           alignSelf: 'center',
           position: 'absolute',
@@ -134,7 +136,7 @@ export default function Items({navigation}) {
         }}>
         <Icon
           name="add"
-          color={'#e27127'}
+          color={COLORS.themeColor}
           size={28}
           onPress={() => navigation.navigate('UploadItemScreen')}
         />

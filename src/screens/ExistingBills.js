@@ -30,7 +30,12 @@ export default function ExistingBills() {
           <Text style={style.textStyle2}>8 Aug</Text>
           <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
             <Icon name="edit" size={24} style={{paddingHorizontal: 4}} />
-            <Icon name="delete" color={'#e27127'} size={24} style={{paddingHorizontal: 4}} />
+            <Icon
+              name="delete"
+              color={COLORS.themeColor}
+              size={24}
+              style={{paddingHorizontal: 4}}
+            />
           </View>
         </View>
       </View>
@@ -56,7 +61,7 @@ export default function ExistingBills() {
       <View
         style={{
           backgroundColor: '#fff',
-          borderColor: '#e27127',
+          borderColor: COLORS.themeColor,
           borderWidth: 1,
           alignSelf: 'center',
           position: 'absolute',
@@ -65,7 +70,7 @@ export default function ExistingBills() {
           padding: 10,
           borderRadius: 30,
         }}>
-        <Icon name="add" color={'#e27127'} size={28} />
+        <Icon name="add" color={COLORS.themeColor} size={28} />
       </View>
     </>
   );
