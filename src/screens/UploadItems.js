@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import {createIconSetFromFontello} from 'react-native-vector-icons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import COLORS from '../constants/colors';
 import {localStore} from '../LocalData/AsyncManager';
 
 export default function UploadItems() {
@@ -96,7 +97,7 @@ export default function UploadItems() {
         style={{
           alignSelf: 'center',
           marginTop: height / 8,
-          backgroundColor: '#e27127',
+          backgroundColor: COLORS.themeColor,
           paddingHorizontal: 30,
           paddingVertical: 10,
           borderRadius: 7,

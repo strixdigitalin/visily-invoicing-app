@@ -30,7 +30,7 @@ export default function NewBills() {
           <View>
             <Icon
               name="edit"
-              color={'#e27127'}
+              color={COLORS.themeColor}
               size={26}
               style={{paddingHorizontal: 4}}
             />
@@ -82,7 +82,8 @@ export default function NewBills() {
                 justifyContent: 'space-around',
                 alignItems: 'center',
               }}>
-              <View style={{backgroundColor: '#e27127', borderRadius: 5}}>
+              <View
+                style={{backgroundColor: COLORS.themeColor, borderRadius: 5}}>
                 <Icon
                   name="add"
                   color={'#fff'}
@@ -99,7 +100,8 @@ export default function NewBills() {
                 {' '}
                 1{' '}
               </Text>
-              <View style={{backgroundColor: '#e27127', borderRadius: 5}}>
+              <View
+                style={{backgroundColor: COLORS.themeColor, borderRadius: 5}}>
                 <Icon
                   name="remove"
                   color={'#fff'}
@@ -113,13 +115,13 @@ export default function NewBills() {
               style={{flexDirection: 'row', justifyContent: 'space-around'}}>
               <Icon
                 name="edit"
-                color={'#e27127'}
+                color={COLORS.themeColor}
                 size={26}
                 style={{paddingRight: 4}}
               />
               <Icon
                 name="clear"
-                color={'#e27127'}
+                color={COLORS.themeColor}
                 size={29}
                 style={{paddingLeft: 4}}
               />
@@ -127,14 +129,34 @@ export default function NewBills() {
           </View>
         </View>
         <View style={{marginHorizontal: 8}}>
-        <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: "auto"}}>
-          <Icon name="add" color={'#e27127'} size={23} style={{padding: 2}} />
-          <Text style={{color: '#e27127'}}>Additional Charges</Text>
-        </View>
-        <View style={{flexDirection: 'row', alignItems: 'center', marginLeft: "auto"}}>
-          <Icon name="add" color={'#e27127'} size={23} style={{padding: 2}} />
-          <Text style={{color: '#e27127'}}>Discount</Text>
-        </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginLeft: 'auto',
+            }}>
+            <Icon
+              name="add"
+              color={COLORS.themeColor}
+              size={23}
+              style={{padding: 2}}
+            />
+            <Text style={{color: COLORS.themeColor}}>Additional Charges</Text>
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginLeft: 'auto',
+            }}>
+            <Icon
+              name="add"
+              color={COLORS.themeColor}
+              size={23}
+              style={{padding: 2}}
+            />
+            <Text style={{color: COLORS.themeColor}}>Discount</Text>
+          </View>
         </View>
       </>
     );
@@ -157,7 +179,7 @@ export default function NewBills() {
         <View
           style={{
             backgroundColor: '#fff',
-            borderColor: '#e27127',
+            borderColor: COLORS.themeColor,
             borderWidth: 1,
             elevation: 10,
             padding: 10,
@@ -166,13 +188,13 @@ export default function NewBills() {
             marginHorizontal: width / 8,
             alignItems: 'center',
           }}>
-          <Icon name="save" color={'#e27127'} size={31} />
+          <Icon name="save" color={COLORS.themeColor} size={31} />
           <Text style={style.textStyle3}>Save</Text>
         </View>
         <View
           style={{
             backgroundColor: '#fff',
-            borderColor: '#e27127',
+            borderColor: COLORS.themeColor,
             borderWidth: 1,
             elevation: 10,
             width: width / 4,
@@ -181,7 +203,7 @@ export default function NewBills() {
             marginHorizontal: width / 8,
             alignItems: 'center',
           }}>
-          <Icon name="nat" color={'#e27127'} size={31} />
+          <Icon name="nat" color={COLORS.themeColor} size={31} />
           <Text style={style.textStyle3}>Generate</Text>
         </View>
       </View>
@@ -222,7 +244,7 @@ const style = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     paddingVertical: 5,
-    color: '#e27127',
+    color: COLORS.themeColor,
   },
   categoriesListContainer: {
     paddingVertical: 20,

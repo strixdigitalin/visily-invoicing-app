@@ -12,7 +12,7 @@ const Tab = createBottomTabNavigator();
 const BottomNavigator = () => {
   return (
     <Tab.Navigator
-    // screenOptions={{ headerShown: false }}
+      // screenOptions={{ headerShown: false }}
       tabBarOptions={{
         style: {
           height: 55,
@@ -20,16 +20,14 @@ const BottomNavigator = () => {
           elevation: 0,
         },
         showLabel: false,
-        activeTintColor: COLORS.primary,
+        activeTintColor: COLORS.themeColor,
       }}>
       <Tab.Screen
         name="NewBillScreen"
         component={NewBills}
         options={{
           headerTitle: 'New Bill',
-          tabBarIcon: ({color}) => (
-            <Icon name="note-add" color={color} size={28} />
-          ),
+          tabBarIcon: ({color}) => <Icon name="home" color={color} size={28} />,
         }}
       />
       <Tab.Screen
@@ -55,18 +53,18 @@ const BottomNavigator = () => {
                 justifyContent: 'center',
                 alignItems: 'center',
                 backgroundColor: COLORS.white,
-                borderColor: COLORS.primary,
+                borderColor: COLORS.themeColor,
                 borderWidth: 2,
                 borderRadius: 30,
                 top: -25,
                 elevation: 5,
               }}>
-              <Icon name="search" color={COLORS.primary} size={28} />
+              <Icon name="search" color={COLORS.themeColor} size={28} />
             </View>
           ),
         }}
       /> */}
-      <Tab.Screen
+      {/* <Tab.Screen
         name="UploadItemScreen"
         component={UploadItems}
         options={{
@@ -76,7 +74,7 @@ const BottomNavigator = () => {
             <Icon name="upload-file" color={color} size={28} />
           ),
         }}
-      />
+      /> */}
       <Tab.Screen
         name="ItemScreen"
         component={Items}
