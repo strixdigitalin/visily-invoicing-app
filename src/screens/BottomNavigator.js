@@ -26,7 +26,7 @@ const BottomNavigator = () => {
         name="NewBillScreen"
         component={NewBills}
         options={{
-          headerTitle: 'New Bill',
+          headerTitle: 'Assign Support',
           tabBarIcon: ({color}) => <Icon name="home" color={color} size={28} />,
         }}
       />
@@ -34,7 +34,7 @@ const BottomNavigator = () => {
         name="ExistingBillScreen"
         component={ExistingBills}
         options={{
-          headerTitle: 'Existing Bill',
+          headerTitle: 'All Questions',
 
           tabBarIcon: ({color}) => (
             <Icon name="description" color={color} size={28} />
@@ -64,18 +64,18 @@ const BottomNavigator = () => {
           ),
         }}
       /> */}
-      {/* <Tab.Screen
+      <Tab.Screen
         name="UploadItemScreen"
         component={UploadItems}
         options={{
-          headerTitle: 'Upload Item',
+          headerTitle: 'Upload Question',
 
           tabBarIcon: ({color}) => (
             <Icon name="upload-file" color={color} size={28} />
           ),
         }}
-      /> */}
-      <Tab.Screen
+      />
+      {/* <Tab.Screen
         name="ItemScreen"
         component={Items}
         options={{
@@ -85,7 +85,7 @@ const BottomNavigator = () => {
             <Icon name="category" color={color} size={28} />
           ),
         }}
-      />
+      /> */}
     </Tab.Navigator>
   );
 };

@@ -59,7 +59,7 @@ export default function Items({navigation}) {
               name="edit"
               size={26}
               style={{paddingHorizontal: 4}}
-              onPress={() => navigation.navigate('Edit product', {data: item})}
+              onPress={() => navigation.navigate('Editproduct', {data: item})}
             />
             <Icon
               name="delete"

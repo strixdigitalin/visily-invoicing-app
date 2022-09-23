@@ -9,10 +9,9 @@ import {
   Dimensions,
   Alert,
 } from 'react-native';
-import {createIconSetFromFontello} from 'react-native-vector-icons';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import COLORS from '../constants/colors';
 import {localStore} from '../LocalData/AsyncManager';
+import {launchImageLibrary} from 'react-native-image-picker';
 
 export default function UploadItems() {
   const {width, height} = Dimensions.get('screen');
@@ -27,25 +26,57 @@ export default function UploadItems() {
     setFormData({...formData, [name]: value});
   };
 
+  const chooseImage = () => {
+    let options = {
+      title: 'Select Image',
+      customButtons: [
+        {name: 'customOptionKey', title: 'Choose Photo from Custom Option'},
+      ],
+      storageOptions: {
+        skipBackup: true,
+        path: 'images',
+      },
+    };
+    launchImageLibrary(options, response => {
+      console.log('Response = ', response);
+
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else if (response.customButton) {
+        console.log('User tapped custom button: ', response.customButton);
+        alert(response.customButton);
+      } else {
+        const source = {uri: response.uri};
+
+        // You can also display the image using data:
+        // const source = { uri: 'data:image/jpeg;base64,' + response.data };
+        // alert(JSON.stringify(response));s
+        console.log('response', JSON.stringify(response));
+        this.setState({
+          filePath: response,
+          fileData: response.data,
+          fileUri: response.uri,
+        });
+      }
+    });
+  };
+
   const Fields = [
     {
       label: 'Product Name',
-      name: 'name',
+      name: 'Name',
       onTextChange: (name, value) => handleChange(name, value),
     },
     {
       label: 'Description',
-      name: 'description',
+      name: 'Description',
       onTextChange: (name, value) => handleChange(name, value),
     },
     {
-      label: 'Quantity',
-      name: 'quantity',
-      onTextChange: (name, value) => handleChange(name, value),
-    },
-    {
-      label: 'price (In Rs)',
-      name: 'price',
+      label: 'Question',
+      name: 'Question',
       onTextChange: (name, value) => handleChange(name, value),
     },
   ];
@@ -63,7 +94,22 @@ export default function UploadItems() {
   };
 
   return (
-    <ScrollView style={{padding: 15, marginTop: 30}}>
+    <ScrollView style={{padding: 15, marginTop: 50}}>
+      <TouchableOpacity style={{marginBottom: 20}} onPress={() => chooseImage()}>
+        <Text
+          style={{
+            borderColor: '#4682B4',
+            borderWidth: 2,
+            paddingVertical: 12,
+            fontSize: 16,
+            fontWeight: 'bold',
+            borderRadius: 5,
+            textAlign: 'center',
+          }}>
+          Upload Image
+        </Text>
+      </TouchableOpacity>
+
       {Fields.map((item, key) => {
         return (
           <React.Fragment key={key}>
@@ -102,7 +148,7 @@ export default function UploadItems() {
           paddingVertical: 10,
           borderRadius: 7,
         }}>
-        <Text style={style.textStyle2}>Upload Item</Text>
+        <Text style={style.textStyle2}>Upload Question</Text>
       </TouchableOpacity>
     </ScrollView>
   );

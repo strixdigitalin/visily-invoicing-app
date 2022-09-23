@@ -40,19 +40,19 @@ export default function NewBills() {
     );
   };
 
-  const CardTotal = () => {
+  const CardTotal = ({name}) => {
     return (
       <View
         style={{
-          marginTop: 70,
+          marginVertical: 10,
           marginHorizontal: 5,
         }}>
         <View style={style.cardTotal}>
-          <View>
+          {/* <View>
             <Text style={style.textStyle}>Sub Total</Text>
-          </View>
+          </View> */}
           <View>
-            <Text style={style.textStyle}>Rs 250</Text>
+            <Text style={style.textStyle}>{name}</Text>
           </View>
         </View>
       </View>
@@ -164,10 +164,13 @@ export default function NewBills() {
 
   return (
     <>
-      <ScrollView style={{padding: 10}}>
-        <Card />
-        <ItemShowcase />
-        <CardTotal />
+      <ScrollView style={{padding: 10, marginTop: 50}}>
+        {/* <Card /> */}
+        {/* <ItemShowcase /> */}
+        <CardTotal name={'Helpdesk'} />
+        <CardTotal name={'Marketing'} />
+        <CardTotal name={'Sales'} />
+        <CardTotal name={'Technical Support'} />
       </ScrollView>
       <View
         style={{
@@ -204,7 +207,7 @@ export default function NewBills() {
             alignItems: 'center',
           }}>
           <Icon name="nat" color={COLORS.themeColor} size={31} />
-          <Text style={style.textStyle3}>Generate</Text>
+          <Text style={style.textStyle3}>Assign</Text>
         </View>
       </View>
     </>
@@ -228,6 +231,7 @@ const style = StyleSheet.create({
     fontSize: 16,
     color: 'rgba(0,0,0,0.9)',
     paddingVertical: 5,
+    textAlign: "center"
   },
   textStyle4: {
     fontWeight: 'bold',
@@ -270,11 +274,12 @@ const style = StyleSheet.create({
     alignItems: 'center',
   },
   cardTotal: {
-    flexDirection: 'row',
+    // flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: '#fff',
-    paddingHorizontal: 15,
+    marginHorizontal: 55,
     paddingVertical: 16,
-    alignItems: 'center',
+    // alignItems: 'center',
+    // alignSelf: "center"
   },
 });

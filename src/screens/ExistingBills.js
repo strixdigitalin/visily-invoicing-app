@@ -23,8 +23,7 @@ export default function ExistingBills() {
           borderWidth: 0.8,
         }}>
         <View style={style.card}>
-          <Text style={style.textStyle}>#1457</Text>
-          <Text style={style.textStyle}>Rs 6890</Text>
+          <Text style={style.textStyle}>Lorem ipsum is the best question ever in this world. Strix is the best company</Text>
         </View>
         <View style={style.card}>
           <Text style={style.textStyle2}>8 Aug</Text>
@@ -44,14 +43,16 @@ export default function ExistingBills() {
 
   return (
     <>
-      <ScrollView style={{padding: 10}}>
+      <ScrollView style={{padding: 10, marginBottom: 10}}>
         <View style={style.inputContainer}>
           <Icon name="search" size={28} />
           <TextInput
             style={{flex: 1, fontSize: 18}}
-            placeholder="Search for Bills"
+            placeholder="Search for Question"
           />
         </View>
+        <Card />
+        <Card />
         <Card />
         <Card />
         <Card />
@@ -92,6 +93,7 @@ const style = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
     color: 'rgba(0,0,0,0.9)',
+    // width: '90%'
   },
   textStyle2: {
     fontWeight: 'bold',
