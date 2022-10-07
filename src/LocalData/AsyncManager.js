@@ -32,11 +32,12 @@ const filterAndRemove = (id, arr) => {
 };
 
 const findAndreplace = (payload, arr) => {
+  // console.log('\n\n\n ', arr, '\n\n ', payload, '\n\n\n\n<<<< payload data');
   return arr.map(item => {
     console.log(item.id, '----', payload);
     if (item.id != payload.id) return item;
     else {
-      console.log('\n\nmatchied', {...item, ...payload});
+      // console.log('\n\nmatchied', {...item, ...payload});
       return {id: item.id, ...payload};
     }
   });
@@ -57,8 +58,10 @@ const uploadProducts = async (payload, callBack) => {
   );
 };
 const editProduct = async (payload, callBack) => {
+  console.log(payload, '<<< \n\n\n this is payload \n\n');
   const prevProducts = await FetchLocal.products();
   const updated = findAndreplace(payload, prevProducts);
+  console.log(updated, '<< \n\n updated \n\n');
   AsyncStorage.setItem(AsyncTag.ALL_PRODUCTS, stringIt([...updated]), res => {
     console.log(res);
     callBack({success: true});
@@ -81,15 +84,38 @@ const uploadInvoice = async (payload, callBack) => {
   const prvInvoice = await FetchLocal.invoice();
   AsyncStorage.setItem(
     AsyncTag.ALL_BILL,
-    stringIt([...prvInvoice, {...payload, id: prvInvoice.length}]),
+    stringIt([...prvInvoice, {...payload, id: prvInvoice.length + 1}]),
     res => {
       callBack({success: true});
     },
   );
 };
+
+const editInvoice = async (payload, callBack) => {
+  const prevInvoice = await FetchLocal.invoice();
+
+  const updated = findAndreplace(payload, prevInvoice);
+  console.log('\n\n\n', updated, '<<<updated invoice');
+  AsyncStorage.setItem(AsyncTag.ALL_BILL, stringIt([...updated]), res => {
+    callBack({success: true});
+  });
+};
+const deleteInvoiceById = async (id, callBack) => {
+  const prevProducts = await FetchLocal.invoice();
+  const updatedProduct = filterAndRemove(id, prevProducts);
+  AsyncStorage.setItem(
+    AsyncTag.ALL_BILL,
+    stringIt([...updatedProduct]),
+    res => {
+      console.log(res);
+      callBack({success: true});
+    },
+  );
+};
+
 const fetchProducts = () => FetchLocal.products();
 const fetchInvoice = () => FetchLocal.invoice();
-
+const fetchIdForNewBill = () => FetchLocal.invoice();
 // ------------------------------------
 
 export const localStore = {
@@ -97,6 +123,9 @@ export const localStore = {
   deleteProductByID,
   editProduct,
   uploadInvoice,
+  editInvoice,
+  deleteInvoiceById,
   fetchInvoice,
   fetchProducts,
+  fetchIdForNewBill,
 };

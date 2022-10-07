@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   ScrollView,
   View,
@@ -6,14 +6,29 @@ import {
   TextInput,
   StyleSheet,
   Dimensions,
+  Touchable,
+  Alert,
 } from 'react-native';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import COLORS from '../constants/colors';
+import {useIsFocused} from '@react-navigation/native';
+import {localStore} from '../LocalData/AsyncManager';
 
-export default function ExistingBills() {
+export default function ExistingBills({navigation}) {
+  const isFocused = useIsFocused();
+  const [allBills, setAllBills] = useState([]);
   const {width, height} = Dimensions.get('screen');
+  const [refreshScreen, setRefreshScreen] = useState(false);
+  useEffect(() => {
+    (async () => {
+      const allBills = await localStore.fetchInvoice();
+      console.log(allBills, '<<<\n\n\nallbills');
+      setAllBills(await localStore.fetchInvoice());
+    })();
+  }, [isFocused, refreshScreen]);
 
-  const Card = () => {
+  const Card = item => {
     return (
       <View
         style={{
@@ -23,16 +38,38 @@ export default function ExistingBills() {
           borderWidth: 0.8,
         }}>
         <View style={style.card}>
-          <Text style={style.textStyle}>#1457</Text>
-          <Text style={style.textStyle}>Rs 6890</Text>
+          {/* <Text style={style.textStyle}>
+            {item?.id} {item.partyName}
+          </Text> */}
+          <Text style={style.textStyle}>Rs {item?.totalAmount}</Text>
         </View>
         <View style={style.card}>
-          <Text style={style.textStyle2}>8 Aug</Text>
+          <Text style={style.textStyle2}>{item?.date}</Text>
           <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
-            <Icon name="edit" size={24} style={{paddingHorizontal: 4}} />
+            <Text
+              style={{
+                ...style.textStyle2,
+                color: item.isGenerated ? '#00FF00' : '#FF0000',
+              }}>
+              {item.isGenerated ? 'Generated' : 'Draft'}
+            </Text>
+            <Icon
+              onPress={() =>
+                navigation.navigate('Edit Invoice', {invoiceData: item})
+              }
+              name="edit"
+              size={24}
+              style={{paddingHorizontal: 4}}
+            />
             <Icon
               name="delete"
               color={COLORS.themeColor}
+              onPress={() => {
+                localStore.deleteInvoiceById(item.id, res => {
+                  if (res.success) return Alert.alert('Product Deleted');
+                });
+                setRefreshScreen(!refreshScreen);
+              }}
               size={24}
               style={{paddingHorizontal: 4}}
             />
@@ -52,11 +89,7 @@ export default function ExistingBills() {
             placeholder="Search for Bills"
           />
         </View>
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        <Card />
+        {allBills.map(item => Card(item))}
       </ScrollView>
       <View
         style={{
@@ -70,7 +103,9 @@ export default function ExistingBills() {
           padding: 10,
           borderRadius: 30,
         }}>
-        <Icon name="add" color={COLORS.themeColor} size={28} />
+        <TouchableOpacity onPress={() => navigation.navigate('NewBillScreen')}>
+          <Icon name="add" color={COLORS.themeColor} size={28} />
+        </TouchableOpacity>
       </View>
     </>
   );

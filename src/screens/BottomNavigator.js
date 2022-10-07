@@ -41,6 +41,7 @@ const BottomNavigator = () => {
           ),
         }}
       />
+
       {/* <Tab.Screen
         name="Search"
         component={HomeScreen}

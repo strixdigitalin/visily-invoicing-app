@@ -17,11 +17,14 @@ import {FetchLocal, localStore} from '../LocalData/AsyncManager';
 import {useIsFocused} from '@react-navigation/native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 
-export default function Items({navigation}) {
+export default function SelectProducts({navigation, route}) {
+  const {onPressProduct, billItem, saveProducts, deleteItem} =
+    route.params.data;
   const isFocused = useIsFocused();
   const {width, height} = Dimensions.get('screen');
   const [AllProducts, setAllProducts] = useState([]);
   const [filterProducts, setfilterProducts] = useState([]);
+  const [billItemInThisScreen, setBillItemInThisScreen] = useState(billItem); // this state is to dark and light color of card
   const [refreshing, setRefreshing] = React.useState(false);
   useEffect(() => {
     fetchData();
@@ -36,26 +39,57 @@ export default function Items({navigation}) {
     setRefreshing(false);
   };
 
-  const Card = ({item}) => {
-    console.log('Passed Item\n\n ', item, '\n\n');
+  const Card = ({
+    item,
+    onPressProduct,
+    deleteItem,
+
+    isProductAdded,
+  }) => {
+    console.log('Passed Item\n\n ', item, '\n\n', billItem);
+    const checkIsExist = billItemInThisScreen.filter(pro => pro.id == item.id);
+
+    console.log(checkIsExist.length, '<<<<');
+
     return (
-      <View
-        style={{
-          marginVertical: 10,
-          marginHorizontal: 5,
-          borderColor: '#ccc',
-          borderWidth: 0.8,
+      <TouchableOpacity
+        onPress={() => {
+          if (checkIsExist.length != 0) {
+            console.log('deleting item');
+            setBillItemInThisScreen(
+              billItemInThisScreen.filter(pro => pro.id != item.id),
+            );
+            deleteItem(item);
+          } else {
+            console.log('adding item');
+            setBillItemInThisScreen([...billItemInThisScreen, item]);
+            onPressProduct(item);
+          }
         }}>
-        <View style={style.card}>
-          <View>
-            <Text style={style.textStyle}>
-              {item?.id} {item?.name}
-            </Text>
-            <Text style={style.textStyle}>
-              Stock:{item?.quantity} {'    '} Price: {item?.price}
-            </Text>
-          </View>
-          <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
+        <View
+          style={{
+            marginVertical: 10,
+            marginHorizontal: 5,
+            borderColor: checkIsExist.length != 0 ? '#808080' : '#ccc',
+            backgroundColor: checkIsExist.length != 0 ? '#D3D3D3' : '#ffff',
+            borderWidth: 0.8,
+            borderRadius: 10,
+          }}>
+          <View
+            style={{
+              ...style.card,
+              backgroundColor: checkIsExist.length != 0 ? '#D3D3D3' : '#ffff',
+              borderRadius: 10,
+            }}>
+            <View>
+              <Text style={style.textStyle}>
+                {item?.id} {item?.name}
+              </Text>
+              <Text style={style.textStyle}>
+                Stock:{item?.quantity} {'    '} Price: {item?.price}
+              </Text>
+            </View>
+            {/* <View style={{flexDirection: 'row', justifyContent: 'space-around'}}>
             <TouchableOpacity>
               <Icon
                 name="edit"
@@ -75,9 +109,10 @@ export default function Items({navigation}) {
                 style={{paddingHorizontal: 4}}
               />
             </TouchableOpacity>
+          </View> */}
           </View>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   };
 
@@ -96,6 +131,10 @@ export default function Items({navigation}) {
       }
     });
   };
+
+  const isProductAdded = item => {
+    console.log(billItem, item);
+  };
   return (
     <>
       <ScrollView
@@ -105,15 +144,16 @@ export default function Items({navigation}) {
         // }
         // contentContainerStyle={styles.list}
       >
-        <View style={style.inputContainer}>
-          <Icon name="search" size={28} />
-          <TextInput
-            style={{flex: 1, fontSize: 18}}
-            placeholder="Search for Products"
-            onChangeText={text => filterItems(text)}
-          />
+        <View style={{flexDirection: 'row', justifyContent: 'flex-end'}}>
+          {/* <Text
+            style={style.saveit}
+            onPress={() => {
+              saveProducts(billItemInThisScreen);
+              // navigation.goBack();
+            }}>
+            save
+          </Text> */}
         </View>
-
         {/* <FlatList
           data={filterProducts}
           renderItem={({item}) => <Card item={item} />}
@@ -121,7 +161,15 @@ export default function Items({navigation}) {
         /> */}
 
         {filterProducts.map((item, key) => {
-          return <Card key={key} item={item} />;
+          return (
+            <Card
+              deleteItem={deleteItem}
+              isProductAdded={isProductAdded}
+              key={key}
+              onPressProduct={onPressProduct}
+              item={item}
+            />
+          );
         })}
         {/* <Card /> */}
         {/* <Card />
@@ -156,6 +204,18 @@ export default function Items({navigation}) {
 }
 
 const style = StyleSheet.create({
+  saveit: {
+    textAlign: 'center',
+    borderRadius: 10,
+    // color: COLORS.themeColor,
+    fontSize: 20,
+    color: '#ffffff',
+    backgroundColor: COLORS.themeColor,
+    // width: "",
+    width: 70,
+
+    marginRight: 10,
+  },
   inputContainer: {
     flex: 1,
     height: 50,

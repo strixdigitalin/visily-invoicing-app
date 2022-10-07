@@ -4,6 +4,9 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import BottomNavigator from './src/screens/BottomNavigator';
 import EditProducts from './src/screens/EditProducts';
+import UploadItems from './src/screens/UploadItems';
+import EditInvoice from './src/screens/EditInvoice';
+import SelectProducts from './src/screens/SelectProduct';
 
 const Stack = createStackNavigator();
 
@@ -20,6 +23,21 @@ const App = () => {
         <Stack.Screen
           name="Edit product"
           component={EditProducts}
+          options={{headerShown: true}}
+        />
+        <Stack.Screen
+          name="Upload Items"
+          component={UploadItems}
+          options={{headerShown: true}}
+        />
+        <Stack.Screen
+          name="Edit Invoice"
+          component={EditInvoice}
+          options={{headerShown: true}}
+        />
+        <Stack.Screen
+          name="Select Product"
+          component={SelectProducts}
           options={{headerShown: true}}
         />
       </Stack.Navigator>
