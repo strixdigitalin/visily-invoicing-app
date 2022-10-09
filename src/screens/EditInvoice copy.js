@@ -15,30 +15,31 @@ import {FetchLocal, localStore} from '../LocalData/AsyncManager';
 import {useIsFocused} from '@react-navigation/native';
 import {getTodayDate} from '../LocalData/InvoiceManager';
 import {TouchableOpacity} from 'react-native-gesture-handler';
-import {Colors} from 'react-native/Libraries/NewAppScreen';
 
-export default function NewBills({navigation}) {
+export default function EditInvoice({navigation, route}) {
+  const {invoiceData} = route.params;
   const isFocused = useIsFocused();
   const {width, height} = Dimensions.get('screen');
   // const pickerRef = useRef();
-  const [partyName, setPartyName] = useState('');
+  // const [partyName, setPartyName] = useState('');
   const [products, setProducts] = useState([]);
   const [billItem, setBillItem] = useState([]);
   const [inVoiceID, setInVoiceID] = useState(0);
   const [totalAmount, setTotalAmount] = useState(0);
   const [refreshScreen, setRefreshScreen] = useState(false);
-  const [showHideToggle, setShowHideToggle] = useState(true);
 
   useEffect(() => {
     (async () => {
       const totalInVoice = await localStore.fetchIdForNewBill();
-      setInVoiceID(+totalInVoice.length + 1);
+      setInVoiceID(invoiceData.id);
       console.log('<<<id for new bill');
-      setTotalAmount(0);
-      const data = await FetchLocal.products();
-      setProducts(data.reverse());
+      setTotalAmount(invoiceData.totalAmount);
+      // setPartyName(invoiceData.partyName);
+      // const data = await FetchLocal.products();
+      setBillItem(invoiceData.billItem);
+      setProducts(invoiceData.billItem);
     })();
-  }, [isFocused, refreshScreen]);
+  }, [isFocused]);
 
   const calculateAmount = () => {
     let total = 0;
@@ -49,21 +50,23 @@ export default function NewBills({navigation}) {
   };
 
   const saveInvoice = () => {
+    console.log(billItem, '<<<');
     // if (partyName.trim() == '') return Alert.alert('Enter Party Name');
     if (billItem.length == 0) return Alert.alert('Select Products');
     const payloadData = {
       date: getTodayDate(),
       // partyName: partyName,
-      // id: inVoiceID,
+      id: inVoiceID,
       totalAmount: calculateAmount(),
       billItem,
       isGenerated: false,
     };
-    console.log(payloadData);
-    localStore.uploadInvoice(payloadData, res => {
+    // console.log('\n\n\n', payloadData, '<<<sending this to edit');
+    // return null;
+    localStore.editInvoice(payloadData, res => {
       if (res.success) {
-        Alert.alert('Invoice saved in draft');
-        setRefreshScreen(!refreshScreen);
+        Alert.alert('Invoice Updated Successfully');
+        // setRefreshScreen(!refreshScreen);
       }
     });
   };
@@ -73,16 +76,17 @@ export default function NewBills({navigation}) {
     const payloadData = {
       date: getTodayDate(),
       // partyName: partyName,
-      // id: inVoiceID,
+      id: inVoiceID,
       totalAmount: calculateAmount(),
       billItem,
       isGenerated: true,
     };
-    console.log(payloadData, '<<payload data');
-    localStore.uploadInvoice(payloadData, res => {
+    // console.log('\n\n\n', payloadData, '<<<sending this to edit');
+    // return null;
+    localStore.editInvoice(payloadData, res => {
       if (res.success) {
-        Alert.alert('Invoice saved in draft');
-        setRefreshScreen(!refreshScreen);
+        Alert.alert('Invoice Updated Successfully');
+        // setRefreshScreen(!refreshScreen);
       }
     });
   };
@@ -101,6 +105,7 @@ export default function NewBills({navigation}) {
     setTotalAmount(calculateAmount());
   };
   const decreaseQtty = (billItem, item) => {
+    // console.log(billItem,)
     setBillItem(
       billItem.map(temp => {
         if (temp.id != item.id) return temp;
@@ -116,42 +121,43 @@ export default function NewBills({navigation}) {
     );
     setTotalAmount(calculateAmount());
   };
+
+  const selectedProductsFromProductScreen = products => {
+    let initialData = [];
+    // products.map(item => {
+    //   const checkExist = billItem.filter(pro => pro.id == item.id);
+    //   if (checkExist.length) {
+    //     initialData = [...initialData, checkExist[0]];
+    //   } else {
+    //     initialData = [...initialData, {...item, qtty: 1}];
+    //   }
+    // });
+    console.log('\n\n\n\n\n', products, '<<<initial data');
+    setBillItem(products);
+  };
+
   const deleteItem = item => {
     setBillItem(billItem.filter(temp => temp.id != item.id));
+    console.log(
+      '\n\n Deleting item \t',
+      billItem,
+      '\n',
+      billItem.filter(temp => temp.id != item.id),
+      '<<<\n\n',
+    );
     setTotalAmount(calculateAmount());
   };
-  const addIteminList = ([], item) => {
-    console.log(
-      '\n\n\n Adding new ite --> \t',
-      item,
-      '\n PRevious items-->\t',
-      billItem,
-    );
-
+  const addIteminList = (billItem, item) => {
     if (isItemExist(billItem, item)) {
       console.log('\n\nexist');
       inCreaseQtty(billItem, item);
     } else {
       console.log('\nnew');
       setBillItem([...billItem, {...item, qtty: 1}]);
+      console.log('\n\n Must be added\n\n \t>>', billItem);
     }
   };
 
-  const selectedProductsFromProductScreen = products => {
-    let initialData = [];
-    products.map(item => {
-      const checkExist = billItem.filter(pro => pro.id == item.id);
-      if (checkExist.length) {
-        initialData = [...initialData, checkExist[0]];
-      } else {
-        initialData = [...initialData, {...item, qtty: 1}];
-      }
-    });
-    console.log('\n\n\n\n\n', initialData, '<<<initial data');
-    // Alert.alert('Saved');
-    setBillItem(initialData);
-    setTotalAmount(calculateAmount());
-  };
   const Card = () => {
     return (
       <View
@@ -185,7 +191,7 @@ export default function NewBills({navigation}) {
     return (
       <View
         style={{
-          marginTop: 1,
+          marginTop: 70,
           marginHorizontal: 5,
         }}>
         <View style={style.cardTotal}>
@@ -200,7 +206,7 @@ export default function NewBills({navigation}) {
     );
   };
 
-  const ItemShowcase = billItem => {
+  const ItemShowcase = () => {
     return (
       <>
         <ScrollView
@@ -211,9 +217,9 @@ export default function NewBills({navigation}) {
             style={{
               marginVertical: 2,
               marginHorizontal: 5,
-              borderColor: '#ccc',
+              // borderColor: '#ccc',
               borderWidth: 0.8,
-              paddingVertical: 1,
+              paddingVertical: 2,
               backgroundColor: '#fff',
             }}>
             {billItem.map(item => (
@@ -227,7 +233,7 @@ export default function NewBills({navigation}) {
                   <Text style={{...style.textStyle4}}>{item.name}</Text>
                   <Text style={style.textStyle4}>Rs {item.price}</Text>
                 </View>
-                <View style={{...style.card, height: 20}}>
+                <View style={style.card}>
                   <Text style={{...style.textStyle4, fontSize: 12}}>
                     <View
                       style={{
@@ -245,7 +251,7 @@ export default function NewBills({navigation}) {
                           onPress={() => inCreaseQtty(billItem, item)}
                           color={'#fff'}
                           size={20}
-                          style={{padding: 1}}
+                          style={{padding: 2}}
                         />
                       </View>
                       <Text
@@ -281,7 +287,7 @@ export default function NewBills({navigation}) {
                         name="clear"
                         onPress={() => deleteItem(item)}
                         color={COLORS.themeColor}
-                        size={22}
+                        size={20}
                         style={{paddingLeft: 4}}
                       />
                     </View>
@@ -346,88 +352,6 @@ export default function NewBills({navigation}) {
           </View>
         </ScrollView>
 
-        {/* <View style={{marginHorizontal: 8}}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginLeft: 'auto',
-            }}>
-            <Icon
-              name="add"
-              color={COLORS.themeColor}
-              size={23}
-              style={{padding: 2}}
-            />
-            <Text style={{color: COLORS.themeColor}}>Additional Charges</Text>
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              marginLeft: 'auto',
-            }}>
-            <Icon
-              name="add"
-              color={COLORS.themeColor}
-              size={23}
-              style={{padding: 2}}
-            />
-            <Text style={{color: COLORS.themeColor}}>Discount</Text>
-          </View>
-        </View> */}
-      </>
-    );
-  };
-
-  return (
-    <>
-      <ScrollView style={{padding: 10}}>
-        <Card />
-        {/* <Text style={style.textStyle}>Party Name</Text>
-        <View style={style.inputContainer}>
-          <TextInput
-            style={{flex: 1, fontSize: 18}}
-            // keyboardType={item.keyboard}
-            placeholder="Enter Name"
-            onChangeText={text => setPartyName(text)}
-          />
-        </View> */}
-        <TouchableOpacity
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            marginTop: 20,
-          }}
-          onPress={() =>
-            navigation.navigate('Select Product', {
-              data: {
-                onPressProduct: pro => addIteminList([], pro),
-                billItem,
-                setBillItem: setBillItem,
-                saveProducts: selectedProductsFromProductScreen,
-                deleteItem,
-              },
-            })
-          }>
-          <Text style={style.selectproduct}>Select Product</Text>
-        </TouchableOpacity>
-        {/* <Picker
-          onValueChange={(itemValue, itemIndex) => {
-            setBillItem([itemValue, ...billItem]);
-            addIteminList(billItem, itemValue);
-          }}>
-          <Picker.Item label="Select Products" value="null" />
-          {products.map(item => (
-            <Picker.Item label={item.name} value={item} />
-          ))}
-        </Picker> */}
-        <Text
-          style={{...style.textStyle, ...style.show}}
-          onPress={() => setShowHideToggle(!showHideToggle)}>
-          {showHideToggle ? 'Hide' : 'Show'}
-        </Text>
-        {showHideToggle && ItemShowcase(billItem)}
         <View style={{marginHorizontal: 8}}>
           <View
             style={{
@@ -458,6 +382,54 @@ export default function NewBills({navigation}) {
             <Text style={{color: COLORS.themeColor}}>Discount</Text>
           </View>
         </View>
+      </>
+    );
+  };
+
+  return (
+    <>
+      <ScrollView style={{padding: 10}}>
+        <Card />
+        {/* <Text style={style.textStyle}>Party Name</Text>
+        <View style={style.inputContainer}>
+          <TextInput
+            style={{flex: 1, fontSize: 18}}
+            // keyboardType={item.keyboard}
+            value={partyName}
+            placeholder="Enter Name"
+            onChangeText={text => setPartyName(text)}
+          />
+        </View> */}
+        {/* <Pickerz
+          onValueChange={(itemValue, itemIndex) => {
+            // setBillItem([itemValue, ...billItem]);
+            addIteminList(billItem, itemValue);
+          }}>
+          <Picker.Item label="Select Products" value="null" />
+          {products.map(item => (
+            <Picker.Item label={item.name} value={item} />
+          ))}
+        </Picker> */}
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            marginTop: 20,
+          }}
+          onPress={() =>
+            navigation.navigate('Select Product', {
+              data: {
+                onPressProduct: pro => addIteminList(billItem, pro),
+                billItem,
+                setBillItem: setBillItem,
+                deleteItem,
+                saveProducts: selectedProductsFromProductScreen,
+              },
+            })
+          }>
+          <Text style={style.selectproduct}>Select Product</Text>
+        </TouchableOpacity>
+        {ItemShowcase()}
         {/* <ItemShowcase /> */}
         <CardTotal />
       </ScrollView>
@@ -465,7 +437,7 @@ export default function NewBills({navigation}) {
         style={{
           flexDirection: 'row',
           position: 'absolute',
-          top: height / 1.48,
+          top: height / 1.58,
           alignSelf: 'center',
         }}>
         <View
@@ -483,7 +455,7 @@ export default function NewBills({navigation}) {
           <Icon
             name="save"
             color={COLORS.themeColor}
-            size={20}
+            size={31}
             onPress={saveInvoice}
           />
           <Text style={style.textStyle3} onPress={saveInvoice}>
@@ -498,7 +470,7 @@ export default function NewBills({navigation}) {
             borderWidth: 1,
             elevation: 10,
             width: width / 4,
-            padding: 5,
+            padding: 10,
             borderRadius: 10,
             marginHorizontal: width / 8,
             alignItems: 'center',
@@ -506,12 +478,10 @@ export default function NewBills({navigation}) {
           <Icon
             name="nat"
             color={COLORS.themeColor}
-            size={20}
+            size={31}
             onPress={generateInvoice}
           />
-          <Text style={style.textStyle3} onPress={generateInvoice}>
-            Generate
-          </Text>
+          <Text style={style.textStyle3}>Generate</Text>
         </View>
       </View>
     </>
@@ -530,9 +500,12 @@ const style = StyleSheet.create({
     paddingHorizontal: 20,
     marginVertical: 2,
   },
-  show: {
-    // backgroundColor: ,
-    marginBottom: 10,
+
+  textStyle: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: 'rgba(0,0,0,0.9)',
+    paddingVertical: 3,
   },
   selectproduct: {
     width: '60%',
@@ -542,16 +515,11 @@ const style = StyleSheet.create({
     margin: 'auto',
     textAlign: 'center',
     fontSize: 18,
+    marginBottom: 20,
     backgroundColor: COLORS.themeColor,
     color: '#ffffff',
   },
 
-  textStyle: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    color: 'rgba(0,0,0,0.9)',
-    paddingVertical: 3,
-  },
   textStyle4: {
     fontWeight: 'bold',
     fontSize: 14,
@@ -565,7 +533,7 @@ const style = StyleSheet.create({
   },
   textStyle3: {
     fontWeight: 'bold',
-    fontSize: 12,
+    fontSize: 16,
     paddingVertical: 5,
     color: COLORS.themeColor,
   },
@@ -610,7 +578,7 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#fff',
     paddingHorizontal: 15,
-    paddingVertical: 5,
+    paddingVertical: 16,
     alignItems: 'center',
   },
 });

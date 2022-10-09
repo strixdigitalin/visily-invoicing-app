@@ -18,7 +18,7 @@ import {useIsFocused} from '@react-navigation/native';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 
 export default function SelectProducts({navigation, route}) {
-  const {onPressProduct, billItem, saveProducts, deleteItem} =
+  const {onPressProduct, billItem, setBillItem, saveProducts, deleteItem} =
     route.params.data;
   const isFocused = useIsFocused();
   const {width, height} = Dimensions.get('screen');
@@ -43,13 +43,14 @@ export default function SelectProducts({navigation, route}) {
     item,
     onPressProduct,
     deleteItem,
-
+    setBillItem,
+    billItem,
     isProductAdded,
   }) => {
-    console.log('Passed Item\n\n ', item, '\n\n', billItem);
+    // console.log('Passed Item\n\n ', item, '\n\n', billItem);
     const checkIsExist = billItemInThisScreen.filter(pro => pro.id == item.id);
 
-    console.log(checkIsExist.length, '<<<<');
+    // console.log(checkIsExist.length, '<<<<');
 
     return (
       <TouchableOpacity
@@ -59,11 +60,14 @@ export default function SelectProducts({navigation, route}) {
             setBillItemInThisScreen(
               billItemInThisScreen.filter(pro => pro.id != item.id),
             );
-            deleteItem(item);
+            saveProducts(billItemInThisScreen.filter(pro => pro.id != item.id));
+            // deleteItem(item);
           } else {
             console.log('adding item');
             setBillItemInThisScreen([...billItemInThisScreen, item]);
-            onPressProduct(item);
+            // onPressProduct(item);
+            setBillItem([...billItem, {...item, qtty: 1}]);
+            saveProducts([...billItemInThisScreen, {...item, qtty: 1}]);
           }
         }}>
         <View
@@ -83,7 +87,7 @@ export default function SelectProducts({navigation, route}) {
             }}>
             <View>
               <Text style={style.textStyle}>
-                {item?.id} {item?.name}
+                {item?.id}. {item?.name}
               </Text>
               <Text style={style.textStyle}>
                 Stock:{item?.quantity} {'    '} Price: {item?.price}
@@ -166,6 +170,8 @@ export default function SelectProducts({navigation, route}) {
               deleteItem={deleteItem}
               isProductAdded={isProductAdded}
               key={key}
+              setBillItem={setBillItem}
+              billItem={billItem}
               onPressProduct={onPressProduct}
               item={item}
             />

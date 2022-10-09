@@ -15,31 +15,31 @@ import {FetchLocal, localStore} from '../LocalData/AsyncManager';
 import {useIsFocused} from '@react-navigation/native';
 import {getTodayDate} from '../LocalData/InvoiceManager';
 import {TouchableOpacity} from 'react-native-gesture-handler';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 
 export default function EditInvoice({navigation, route}) {
   const {invoiceData} = route.params;
   const isFocused = useIsFocused();
   const {width, height} = Dimensions.get('screen');
   // const pickerRef = useRef();
-  // const [partyName, setPartyName] = useState('');
+  const [partyName, setPartyName] = useState('');
   const [products, setProducts] = useState([]);
-  const [billItem, setBillItem] = useState([]);
-  const [inVoiceID, setInVoiceID] = useState(0);
-  const [totalAmount, setTotalAmount] = useState(0);
+  const [billItem, setBillItem] = useState(invoiceData.billItem);
+  const [inVoiceID, setInVoiceID] = useState(invoiceData.id);
+  const [totalAmount, setTotalAmount] = useState(invoiceData.totalAmount);
   const [refreshScreen, setRefreshScreen] = useState(false);
+  const [showHideToggle, setShowHideToggle] = useState(true);
 
   useEffect(() => {
     (async () => {
       const totalInVoice = await localStore.fetchIdForNewBill();
       setInVoiceID(invoiceData.id);
       console.log('<<<id for new bill');
-      setTotalAmount(invoiceData.totalAmount);
-      // setPartyName(invoiceData.partyName);
-      // const data = await FetchLocal.products();
-      setBillItem(invoiceData.billItem);
-      setProducts(invoiceData.billItem);
+      setTotalAmount(0);
+      const data = await FetchLocal.products();
+      setProducts(data.reverse());
     })();
-  }, [isFocused]);
+  }, [isFocused, refreshScreen]);
 
   const calculateAmount = () => {
     let total = 0;
@@ -105,7 +105,6 @@ export default function EditInvoice({navigation, route}) {
     setTotalAmount(calculateAmount());
   };
   const decreaseQtty = (billItem, item) => {
-    // console.log(billItem,)
     setBillItem(
       billItem.map(temp => {
         if (temp.id != item.id) return temp;
@@ -121,6 +120,26 @@ export default function EditInvoice({navigation, route}) {
     );
     setTotalAmount(calculateAmount());
   };
+  const deleteItem = item => {
+    setBillItem(billItem.filter(temp => temp.id != item.id));
+    setTotalAmount(calculateAmount());
+  };
+  const addIteminList = ([], item) => {
+    console.log(
+      '\n\n\n Adding new ite --> \t',
+      item,
+      '\n PRevious items-->\t',
+      billItem,
+    );
+
+    if (isItemExist(billItem, item)) {
+      console.log('\n\nexist');
+      inCreaseQtty(billItem, item);
+    } else {
+      console.log('\nnew');
+      setBillItem([...billItem, {...item, qtty: 1}]);
+    }
+  };
 
   const selectedProductsFromProductScreen = products => {
     let initialData = [];
@@ -133,31 +152,10 @@ export default function EditInvoice({navigation, route}) {
       }
     });
     console.log('\n\n\n\n\n', initialData, '<<<initial data');
+    // Alert.alert('Saved');
     setBillItem(initialData);
-  };
-
-  const deleteItem = item => {
-    setBillItem(billItem.filter(temp => temp.id != item.id));
-    console.log(
-      '\n\n Deleting item \t',
-      billItem,
-      '\n',
-      billItem.filter(temp => temp.id != item.id),
-      '<<<\n\n',
-    );
     setTotalAmount(calculateAmount());
   };
-  const addIteminList = (billItem, item) => {
-    if (isItemExist(billItem, item)) {
-      console.log('\n\nexist');
-      inCreaseQtty(billItem, item);
-    } else {
-      console.log('\nnew');
-      setBillItem([...billItem, {...item, qtty: 1}]);
-      console.log('\n\n Must be added\n\n \t>>', billItem);
-    }
-  };
-
   const Card = () => {
     return (
       <View
@@ -191,7 +189,7 @@ export default function EditInvoice({navigation, route}) {
     return (
       <View
         style={{
-          marginTop: 70,
+          marginTop: 1,
           marginHorizontal: 5,
         }}>
         <View style={style.cardTotal}>
@@ -206,7 +204,7 @@ export default function EditInvoice({navigation, route}) {
     );
   };
 
-  const ItemShowcase = () => {
+  const ItemShowcase = billItem => {
     return (
       <>
         <ScrollView
@@ -217,9 +215,9 @@ export default function EditInvoice({navigation, route}) {
             style={{
               marginVertical: 2,
               marginHorizontal: 5,
-              // borderColor: '#ccc',
+              borderColor: '#ccc',
               borderWidth: 0.8,
-              paddingVertical: 2,
+              paddingVertical: 1,
               backgroundColor: '#fff',
             }}>
             {billItem.map(item => (
@@ -233,7 +231,7 @@ export default function EditInvoice({navigation, route}) {
                   <Text style={{...style.textStyle4}}>{item.name}</Text>
                   <Text style={style.textStyle4}>Rs {item.price}</Text>
                 </View>
-                <View style={style.card}>
+                <View style={{...style.card, height: 20}}>
                   <Text style={{...style.textStyle4, fontSize: 12}}>
                     <View
                       style={{
@@ -251,7 +249,7 @@ export default function EditInvoice({navigation, route}) {
                           onPress={() => inCreaseQtty(billItem, item)}
                           color={'#fff'}
                           size={20}
-                          style={{padding: 2}}
+                          style={{padding: 1}}
                         />
                       </View>
                       <Text
@@ -287,7 +285,7 @@ export default function EditInvoice({navigation, route}) {
                         name="clear"
                         onPress={() => deleteItem(item)}
                         color={COLORS.themeColor}
-                        size={20}
+                        size={22}
                         style={{paddingLeft: 4}}
                       />
                     </View>
@@ -352,6 +350,88 @@ export default function EditInvoice({navigation, route}) {
           </View>
         </ScrollView>
 
+        {/* <View style={{marginHorizontal: 8}}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginLeft: 'auto',
+            }}>
+            <Icon
+              name="add"
+              color={COLORS.themeColor}
+              size={23}
+              style={{padding: 2}}
+            />
+            <Text style={{color: COLORS.themeColor}}>Additional Charges</Text>
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              marginLeft: 'auto',
+            }}>
+            <Icon
+              name="add"
+              color={COLORS.themeColor}
+              size={23}
+              style={{padding: 2}}
+            />
+            <Text style={{color: COLORS.themeColor}}>Discount</Text>
+          </View>
+        </View> */}
+      </>
+    );
+  };
+
+  return (
+    <>
+      <ScrollView style={{padding: 10}}>
+        <Card />
+        {/* <Text style={style.textStyle}>Party Name</Text>
+        <View style={style.inputContainer}>
+          <TextInput
+            style={{flex: 1, fontSize: 18}}
+            // keyboardType={item.keyboard}
+            placeholder="Enter Name"
+            onChangeText={text => setPartyName(text)}
+          />
+        </View> */}
+        <TouchableOpacity
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'center',
+            marginTop: 20,
+          }}
+          onPress={() =>
+            navigation.navigate('Select Product', {
+              data: {
+                onPressProduct: pro => addIteminList([], pro),
+                billItem,
+                setBillItem: setBillItem,
+                saveProducts: selectedProductsFromProductScreen,
+                deleteItem,
+              },
+            })
+          }>
+          <Text style={style.selectproduct}>Select Product</Text>
+        </TouchableOpacity>
+        {/* <Picker
+          onValueChange={(itemValue, itemIndex) => {
+            setBillItem([itemValue, ...billItem]);
+            addIteminList(billItem, itemValue);
+          }}>
+          <Picker.Item label="Select Products" value="null" />
+          {products.map(item => (
+            <Picker.Item label={item.name} value={item} />
+          ))}
+        </Picker> */}
+        <Text
+          style={{...style.textStyle, ...style.show}}
+          onPress={() => setShowHideToggle(!showHideToggle)}>
+          {showHideToggle ? 'Hide' : 'Show'}
+        </Text>
+        {showHideToggle && ItemShowcase(billItem)}
         <View style={{marginHorizontal: 8}}>
           <View
             style={{
@@ -382,53 +462,6 @@ export default function EditInvoice({navigation, route}) {
             <Text style={{color: COLORS.themeColor}}>Discount</Text>
           </View>
         </View>
-      </>
-    );
-  };
-
-  return (
-    <>
-      <ScrollView style={{padding: 10}}>
-        <Card />
-        {/* <Text style={style.textStyle}>Party Name</Text>
-        <View style={style.inputContainer}>
-          <TextInput
-            style={{flex: 1, fontSize: 18}}
-            // keyboardType={item.keyboard}
-            value={partyName}
-            placeholder="Enter Name"
-            onChangeText={text => setPartyName(text)}
-          />
-        </View> */}
-        {/* <Pickerz
-          onValueChange={(itemValue, itemIndex) => {
-            // setBillItem([itemValue, ...billItem]);
-            addIteminList(billItem, itemValue);
-          }}>
-          <Picker.Item label="Select Products" value="null" />
-          {products.map(item => (
-            <Picker.Item label={item.name} value={item} />
-          ))}
-        </Picker> */}
-        <TouchableOpacity
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'center',
-            marginTop: 20,
-          }}
-          onPress={() =>
-            navigation.navigate('Select Product', {
-              data: {
-                onPressProduct: pro => addIteminList(billItem, pro),
-                billItem,
-                deleteItem,
-                saveProducts: selectedProductsFromProductScreen,
-              },
-            })
-          }>
-          <Text style={style.selectproduct}>Select Product</Text>
-        </TouchableOpacity>
-        {ItemShowcase()}
         {/* <ItemShowcase /> */}
         <CardTotal />
       </ScrollView>
@@ -436,7 +469,7 @@ export default function EditInvoice({navigation, route}) {
         style={{
           flexDirection: 'row',
           position: 'absolute',
-          top: height / 1.58,
+          top: height / 1.48,
           alignSelf: 'center',
         }}>
         <View
@@ -454,7 +487,7 @@ export default function EditInvoice({navigation, route}) {
           <Icon
             name="save"
             color={COLORS.themeColor}
-            size={31}
+            size={20}
             onPress={saveInvoice}
           />
           <Text style={style.textStyle3} onPress={saveInvoice}>
@@ -469,7 +502,7 @@ export default function EditInvoice({navigation, route}) {
             borderWidth: 1,
             elevation: 10,
             width: width / 4,
-            padding: 10,
+            padding: 5,
             borderRadius: 10,
             marginHorizontal: width / 8,
             alignItems: 'center',
@@ -477,10 +510,12 @@ export default function EditInvoice({navigation, route}) {
           <Icon
             name="nat"
             color={COLORS.themeColor}
-            size={31}
+            size={20}
             onPress={generateInvoice}
           />
-          <Text style={style.textStyle3}>Generate</Text>
+          <Text style={style.textStyle3} onPress={generateInvoice}>
+            Generate
+          </Text>
         </View>
       </View>
     </>
@@ -499,12 +534,9 @@ const style = StyleSheet.create({
     paddingHorizontal: 20,
     marginVertical: 2,
   },
-
-  textStyle: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    color: 'rgba(0,0,0,0.9)',
-    paddingVertical: 3,
+  show: {
+    // backgroundColor: ,
+    marginBottom: 10,
   },
   selectproduct: {
     width: '60%',
@@ -514,11 +546,16 @@ const style = StyleSheet.create({
     margin: 'auto',
     textAlign: 'center',
     fontSize: 18,
-    marginBottom: 20,
     backgroundColor: COLORS.themeColor,
     color: '#ffffff',
   },
 
+  textStyle: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: 'rgba(0,0,0,0.9)',
+    paddingVertical: 3,
+  },
   textStyle4: {
     fontWeight: 'bold',
     fontSize: 14,
@@ -532,7 +569,7 @@ const style = StyleSheet.create({
   },
   textStyle3: {
     fontWeight: 'bold',
-    fontSize: 16,
+    fontSize: 12,
     paddingVertical: 5,
     color: COLORS.themeColor,
   },
@@ -577,7 +614,7 @@ const style = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#fff',
     paddingHorizontal: 15,
-    paddingVertical: 16,
+    paddingVertical: 5,
     alignItems: 'center',
   },
 });

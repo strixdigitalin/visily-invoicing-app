@@ -41,7 +41,9 @@ export default function ExistingBills({navigation}) {
           {/* <Text style={style.textStyle}>
             {item?.id} {item.partyName}
           </Text> */}
-          <Text style={style.textStyle}>Rs {item?.totalAmount}</Text>
+          <Text style={style.textStyle}>
+            {item?.id} Rs {item?.totalAmount}
+          </Text>
         </View>
         <View style={style.card}>
           <Text style={style.textStyle2}>{item?.date}</Text>

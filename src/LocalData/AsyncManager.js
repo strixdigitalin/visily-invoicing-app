@@ -32,11 +32,12 @@ const filterAndRemove = (id, arr) => {
 };
 
 const findAndreplace = (payload, arr) => {
-  // console.log('\n\n\n ', arr, '\n\n ', payload, '\n\n\n\n<<<< payload data');
+  console.log('\n\n\n ', arr, '\n\n ', payload, '\n\n\n\n<<<< payload data');
   return arr.map(item => {
     console.log(item.id, '----', payload);
     if (item.id != payload.id) return item;
     else {
+      console.log('\n\n\n\n ', item.id, payload.id);
       // console.log('\n\nmatchied', {...item, ...payload});
       return {id: item.id, ...payload};
     }
@@ -50,7 +51,7 @@ const uploadProducts = async (payload, callBack) => {
   console.log(prevProducts);
   AsyncStorage.setItem(
     AsyncTag.ALL_PRODUCTS,
-    stringIt([...prevProducts, {...payload, id: prevProducts.length}]),
+    stringIt([...prevProducts, {...payload, id: prevProducts.length + 1}]),
     res => {
       console.log(res);
       callBack({success: true});
