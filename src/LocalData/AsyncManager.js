@@ -24,6 +24,13 @@ export const FetchLocal = {
   },
 };
 
+const getPRoById = (id, prevProducts) => {
+  console.log(id, prevProducts, '<<<< id and previous products');
+  const data = prevProducts.filter(item => {
+    if (item.id == id) return true;
+  });
+  return data[0];
+};
 const filterAndRemove = (id, arr) => {
   return arr.filter(item => {
     if (item == null) return false;
@@ -114,6 +121,23 @@ const deleteInvoiceById = async (id, callBack) => {
   );
 };
 
+const updateStock = async (invoicePRo, callBack) => {
+  // console.log(invoicePRo, '<<<invoice pro');
+  const prevProducts = await FetchLocal.products();
+  invoicePRo.map(item => {
+    const productById = getPRoById(item.id, prevProducts);
+    // console.log(getPRoById(item.id, prevProducts), '<<this is product');
+    const newPRoduct = {
+      ...productById,
+      quantity: +productById.quantity - +item.qtty,
+    };
+    // console.log('update products \n\n\n', newPRoduct, '\n\n', productById);
+    editProduct(newPRoduct, res => {
+      console.log(res);
+    });
+  });
+};
+
 const fetchProducts = () => FetchLocal.products();
 const fetchInvoice = () => FetchLocal.invoice();
 const fetchIdForNewBill = () => FetchLocal.invoice();
@@ -121,6 +145,7 @@ const fetchIdForNewBill = () => FetchLocal.invoice();
 
 export const localStore = {
   uploadProducts,
+  updateStock,
   deleteProductByID,
   editProduct,
   uploadInvoice,
